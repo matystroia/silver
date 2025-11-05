@@ -21,7 +21,7 @@ futures = "0.3.31"
 libc = "0.2.177"
 signal-hook-tokio = { version = "0.3.1", features = ["futures-v0_3"] }
 tokio-stream = "0.1.17"
-tokio-util = "0.7.16"
+tokio-util = "0.7.17"
 reqwest = "0.12.24"
 chrono = { version = "0.4.42", features = ["serde"] }
 toml = "0.9.8"
