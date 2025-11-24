@@ -26,7 +26,7 @@ reqwest = "0.12.24"
 chrono = { version = "0.4.42", features = ["serde"] }
 toml = "0.9.8"
 derive = { path = "./derive" }
-governor = "0.10.1"
+governor = "0.10.2"
 nonzero_ext = "0.3.0"
 regex = "1.12.2"
 async-trait = "0.1.89"
