@@ -1,0 +1,38 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT \n                path,\n                episode_id as \"episode_id!: TMDBId\"\n            FROM features\n            JOIN episodes e ON e.id = episode_id\n            WHERE e.series_id = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "path",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "features",
+            "name": "path"
+          }
+        }
+      },
+      {
+        "name": "episode_id!: TMDBId",
+        "ordinal": 1,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "features",
+            "name": "episode_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "285270d91d8c7a4aabd2e7e9d44ae35e675272fd99b8239da4cd5b9476050ffe"
+}

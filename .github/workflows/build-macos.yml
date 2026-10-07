@@ -1,0 +1,33 @@
+name: build-macos
+
+on:
+  push:
+    tags: ["v*"]        # build on release tags
+  workflow_dispatch: {}  # and let you trigger manually
+
+jobs:
+  build:
+    runs-on: macos-15    # arm64 / Apple Silicon -> aarch64-apple-darwin is native
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install C dependencies
+        run: brew install ffmpeg chafa glib pkg-config
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build
+        run: cargo build --release
+        env:
+          PKG_CONFIG_PATH: >-
+            /opt/homebrew/lib/pkgconfig:/opt/homebrew/opt/ffmpeg/lib/pkgconfig
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: silver-aarch64-apple-darwin
+          path: target/release/silver

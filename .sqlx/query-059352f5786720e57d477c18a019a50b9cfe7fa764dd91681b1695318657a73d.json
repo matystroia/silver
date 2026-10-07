@@ -1,0 +1,38 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT movie_id as \"movie_id: TMDBId\", genre as \"genre: Genre\" FROM movie_genres",
+  "describe": {
+    "columns": [
+      {
+        "name": "movie_id: TMDBId",
+        "ordinal": 0,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "movie_genres",
+            "name": "movie_id"
+          }
+        }
+      },
+      {
+        "name": "genre: Genre",
+        "ordinal": 1,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "movie_genres",
+            "name": "genre"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "059352f5786720e57d477c18a019a50b9cfe7fa764dd91681b1695318657a73d"
+}

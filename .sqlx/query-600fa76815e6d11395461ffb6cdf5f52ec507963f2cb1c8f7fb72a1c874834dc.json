@@ -1,0 +1,38 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT path, movie_id as \"movie_id!: TMDBId\" FROM features WHERE movie_id IS NOT NULL",
+  "describe": {
+    "columns": [
+      {
+        "name": "path",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "features",
+            "name": "path"
+          }
+        }
+      },
+      {
+        "name": "movie_id!: TMDBId",
+        "ordinal": 1,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "features",
+            "name": "movie_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "600fa76815e6d11395461ffb6cdf5f52ec507963f2cb1c8f7fb72a1c874834dc"
+}

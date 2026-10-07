@@ -1,0 +1,38 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT path, episode_id as \"episode_id!: TMDBId\" FROM features WHERE episode_id IS NOT NULL",
+  "describe": {
+    "columns": [
+      {
+        "name": "path",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "features",
+            "name": "path"
+          }
+        }
+      },
+      {
+        "name": "episode_id!: TMDBId",
+        "ordinal": 1,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "features",
+            "name": "episode_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "56bcbe1b9709b89855a6e603b27b4e4c93a97933d9733e431ea848f41cf64962"
+}

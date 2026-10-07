@@ -1,0 +1,50 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT \n                path,\n                movie_id as \"movie_id: TMDBId\",\n                episode_id as \"episode_id: TMDBId\"\n            FROM features",
+  "describe": {
+    "columns": [
+      {
+        "name": "path",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "features",
+            "name": "path"
+          }
+        }
+      },
+      {
+        "name": "movie_id: TMDBId",
+        "ordinal": 1,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "features",
+            "name": "movie_id"
+          }
+        }
+      },
+      {
+        "name": "episode_id: TMDBId",
+        "ordinal": 2,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "features",
+            "name": "episode_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "3bb4d09d5b726bad6919408450a805cbeb37abb46e6a6017b76774f0082c95ab"
+}

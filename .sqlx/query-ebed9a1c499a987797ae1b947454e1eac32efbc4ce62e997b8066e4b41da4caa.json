@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO episodes (id, series_id, title, season_number, episode_number, overview, release_date) VALUES (?, ?, ?, ?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 7
+    },
+    "nullable": []
+  },
+  "hash": "ebed9a1c499a987797ae1b947454e1eac32efbc4ce62e997b8066e4b41da4caa"
+}

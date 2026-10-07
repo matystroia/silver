@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM movies; DELETE FROM series; DELETE FROM files",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "9110a3b11bed8294fdb46b1a957e84a0dcc328cf7ebd9b2c35d8a4f570db2f6a"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT OR IGNORE INTO movies (id, title, year, tagline, overview) VALUES (?, ?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": []
+  },
+  "hash": "11faec7002285062ae4c4c594c5197ec64111799bd2b86ea410a2b5a76227fd9"
+}

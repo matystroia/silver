@@ -1,0 +1,50 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT path, hash, scanned AS \"scanned: bool\" FROM files",
+  "describe": {
+    "columns": [
+      {
+        "name": "path",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "files",
+            "name": "path"
+          }
+        }
+      },
+      {
+        "name": "hash",
+        "ordinal": 1,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "files",
+            "name": "hash"
+          }
+        }
+      },
+      {
+        "name": "scanned: bool",
+        "ordinal": 2,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "files",
+            "name": "scanned"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "28b886485075cfe46a99b76553a2940638c1e9c130eecea842a32dcde8c138b8"
+}
