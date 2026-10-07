@@ -1,2 +1,4 @@
 /target
 /derive/target
+rustc-ice-*
+sqls.yml

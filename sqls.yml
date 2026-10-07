@@ -1,4 +1,0 @@
-connections:
-  - alias: library
-    driver: sqlite3
-    dataSourceName: /home/strigoi/.local/share/silver/library.db
