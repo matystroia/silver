@@ -4,6 +4,7 @@ use crate::core::Config;
 
 static LOG_PATH: LazyLock<PathBuf> = LazyLock::new(|| Config::data_dir().join("log.txt"));
 
+#[derive(Clone, Copy)]
 enum LogLevel {
     Debug,
     Info,

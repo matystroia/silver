@@ -15,15 +15,13 @@ pub struct Dispatcher<'a> {
 }
 
 impl<'a> Dispatcher<'a> {
-    pub fn new(app: &'a mut App) -> Self {
-        Self { app }
-    }
+    pub const fn new(app: &'a mut App) -> Self { Self { app } }
 
     pub async fn dispatch(&mut self, event: Event) {
         match event {
             Event::Navigate(nav) => self.dispatch_navigate(nav).await,
             Event::Key(key) => self.dispatch_key(key).await,
-            Event::Render => self.dispatch_render(),
+            Event::Render => Self::dispatch_render(),
             Event::Notify(msg) => self.dispatch_notify(msg),
 
             Event::Suspend => {
@@ -49,22 +47,20 @@ impl<'a> Dispatcher<'a> {
             Some(menu) => self.app.manager.push_menu(menu),
         }
 
-        self.dispatch_render();
+        Self::dispatch_render();
     }
 
-    fn dispatch_render(&mut self) {
-        NEED_RENDER.store(true, Ordering::Relaxed);
-    }
+    fn dispatch_render() { NEED_RENDER.store(true, Ordering::Relaxed); }
 
     async fn dispatch_key(&mut self, key: KeyEvent) {
         Router::new(self.app).route(key).await;
-        self.dispatch_render();
+        Self::dispatch_render();
     }
 
-    fn dispatch_notify(&mut self, msg: Message) {
+    fn dispatch_notify(&self, msg: Message) {
         let notify = &self.app.core.notify;
         notify.write().unwrap().push_notification(msg);
 
-        self.dispatch_render();
+        Self::dispatch_render();
     }
 }

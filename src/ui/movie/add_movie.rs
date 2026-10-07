@@ -86,11 +86,7 @@ where
             (KeyModifiers::CONTROL, KeyCode::Char('p')) => {
                 self.list_state.write().unwrap().select_previous();
             }
-            (_, KeyCode::Char(_)) => {
-                self.input.on_key_event(key);
-                self.fetch_movies();
-            }
-            (_, KeyCode::Backspace) => {
+            (_, KeyCode::Char(_) | KeyCode::Backspace) => {
                 self.input.on_key_event(key);
                 self.fetch_movies();
             }
@@ -116,9 +112,7 @@ where
         }
     }
 
-    fn should_close(&self) -> bool {
-        self.close
-    }
+    fn should_close(&self) -> bool { self.close }
 }
 
 impl<F> WidgetRef for AddMovie<F>

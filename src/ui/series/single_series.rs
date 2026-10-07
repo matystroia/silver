@@ -108,8 +108,9 @@ impl Menu for SeriesMenu {
                         [path] => {
                             path.play().ok_or_notify();
                         }
-                        // TODO: This
-                        _ => {}
+                        _multiple => {
+                            todo!()
+                        }
                     }
                 }
             }
@@ -153,7 +154,7 @@ impl WidgetRef for SeriesMenu {
         StatefulWidget::render(seasons, seasons_area, buf, &mut local_state);
 
         if let Some(season) = self.selected_season() {
-            EpisodesTable::new(&self.state, season).render_ref(episodes_area, buf)
+            EpisodesTable::new(&self.state, season).render_ref(episodes_area, buf);
         }
 
         if let Some(episode) = self.selected_episode() {

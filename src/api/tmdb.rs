@@ -34,7 +34,7 @@ impl TMDBClient {
         headers.insert("Content-Type", HeaderValue::from_static("application/json"));
         headers.insert(
             "Authorization",
-            HeaderValue::from_str(&format!("Bearer {}", access_token))?,
+            HeaderValue::from_str(&format!("Bearer {access_token}"))?,
         );
 
         let client = Self {

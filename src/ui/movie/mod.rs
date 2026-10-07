@@ -56,7 +56,7 @@ impl MoviesMenu {
     pub async fn new(core: Arc<Core>) -> Self {
         let movies = core.data().movies().await.unwrap();
 
-        let poster_cache = Arc::new(ImageCache::new(Data::get_poster));
+        let poster_cache = Arc::new(ImageCache::new(|x| Data::get_poster(*x)));
 
         let view = View::new(movies);
 
@@ -66,7 +66,7 @@ impl MoviesMenu {
             details = Some(MovieDetails {
                 movie: first,
                 poster_cache: Arc::clone(&poster_cache),
-            })
+            });
         }
 
         let view = Arc::new(RwLock::new(view));
@@ -104,7 +104,7 @@ impl MoviesMenu {
                     core.data().add_movie(Arc::new(movie)).await.ok_or_notify();
                 }
             },
-        )))
+        )));
     }
 
     fn filter_movies(&mut self) {
@@ -112,7 +112,7 @@ impl MoviesMenu {
         let view = Arc::clone(&self.view);
         self.modal = Some(Box::new(InputModal::new(filter, async move |filter| {
             view.write().unwrap().set_filter(filter);
-        })))
+        })));
     }
 
     fn selected_movie(&self) -> Option<Arc<LocalMovie>> {
@@ -133,11 +133,11 @@ impl Menu for MoviesMenu {
             match key.code {
                 KeyCode::Char('j') | KeyCode::Down => {
                     self.table_state.borrow_mut().select_next();
-                    self.update_details().await;
+                    self.update_details();
                 }
                 KeyCode::Char('k') | KeyCode::Up => {
                     self.table_state.borrow_mut().select_previous();
-                    self.update_details().await;
+                    self.update_details();
                 }
                 KeyCode::Enter => {
                     if let Some(movie) = self.selected_movie() {
@@ -212,7 +212,7 @@ impl MoviesMenu {
         ]
     }
 
-    async fn update_details(&mut self) {
+    fn update_details(&mut self) {
         if let Some(movie) = self.selected_movie() {
             self.details = Some(MovieDetails {
                 movie: Arc::clone(&movie),

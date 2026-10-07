@@ -11,9 +11,7 @@ pub struct Keymap {
 }
 
 impl Keymap {
-    pub fn new(key: KeyCode, desc: &'static str) -> Self {
-        Self { key, desc }
-    }
+    pub const fn new(key: KeyCode, desc: &'static str) -> Self { Self { key, desc } }
 }
 
 pub struct KeymapHelp {
@@ -21,9 +19,7 @@ pub struct KeymapHelp {
 }
 
 impl KeymapHelp {
-    pub fn new(keys: Vec<Keymap>) -> Self {
-        Self { keys }
-    }
+    pub const fn new(keys: Vec<Keymap>) -> Self { Self { keys } }
 }
 
 impl WidgetRef for KeymapHelp {

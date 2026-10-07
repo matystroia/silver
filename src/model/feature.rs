@@ -14,22 +14,18 @@ pub enum Feature {
 impl Feature {
     pub fn id(&self) -> TMDBId {
         match self {
-            Feature::Movie(movie) => movie.id,
-            Feature::Episode(episode) => episode.id,
+            Self::Movie(movie) => movie.id,
+            Self::Episode(episode) => episode.id,
         }
     }
 }
 
 impl Hash for Feature {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.id().hash(state);
-    }
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) { self.id().hash(state); }
 }
 
 impl PartialEq for Feature {
-    fn eq(&self, other: &Self) -> bool {
-        self.id().eq(&other.id())
-    }
+    fn eq(&self, other: &Self) -> bool { self.id().eq(&other.id()) }
 }
 
 impl Eq for Feature {}

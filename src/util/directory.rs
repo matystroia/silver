@@ -2,7 +2,7 @@ use std::path::Path;
 
 use walkdir::WalkDir;
 
-pub fn dir_size(path: &Path) -> color_eyre::Result<u64> {
+pub fn dir_size(path: &Path) -> u64 {
     let mut size = 0;
     for entry in WalkDir::new(path).into_iter().filter_map(Result::ok) {
         if entry.file_type().is_file()
@@ -11,7 +11,7 @@ pub fn dir_size(path: &Path) -> color_eyre::Result<u64> {
             size += metadata.len();
         }
     }
-    Ok(size)
+    size
 }
 
 pub fn human_size(size: u64) -> String {

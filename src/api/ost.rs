@@ -54,13 +54,13 @@ impl OpenSubtitlesClient {
 
         match parsed {
             Some(details) => {
-                url.query_pairs_mut().extend_pairs(&details.to_ost_query());
+                url.query_pairs_mut().extend_pairs(details.to_ost_query());
             }
             None => {
                 url.query_pairs_mut()
                     .append_pair("query", &file.filename().unwrap());
             }
-        };
+        }
 
         let response = self
             .client

@@ -17,7 +17,7 @@ pub struct EpisodeOverview<'a> {
 }
 
 impl<'a> EpisodeOverview<'a> {
-    pub fn new(episode: &'a LocalEpisode, thumb_cache: Arc<ImageCache<PathBuf>>) -> Self {
+    pub const fn new(episode: &'a LocalEpisode, thumb_cache: Arc<ImageCache<PathBuf>>) -> Self {
         Self {
             episode,
             thumb_cache,
@@ -27,7 +27,7 @@ impl<'a> EpisodeOverview<'a> {
 
 impl WidgetRef for EpisodeOverview<'_> {
     fn render_ref(&self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer) {
-        let thumb_height = area.width as f64 * (9.0 / 16.0) / 2.0;
+        let thumb_height = f64::from(area.width) * (9.0 / 16.0) / 2.0;
         let [thumb_area, overview_area] = Layout::vertical([
             Constraint::Length(thumb_height.floor() as u16),
             Constraint::Fill(1),

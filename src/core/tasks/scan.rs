@@ -83,7 +83,7 @@ impl ScanTask {
         *self.last_file.write().unwrap() = Some(file.clone());
     }
 
-    async fn done(&self) {
+    fn done(&self) {
         *self.state.write().unwrap() = TaskState::Success;
         Event::Render.emit();
     }
@@ -159,7 +159,7 @@ impl Task for Arc<ScanTask> {
 
         let _results: Vec<_> = stream::iter(files)
             .map(|file| {
-                let (task, detective) = (Arc::clone(self), Arc::clone(&detective));
+                let (task, detective) = (Self::clone(self), Arc::clone(&detective));
                 async move {
                     let result = detective.r#match(&file).await;
                     task.file_done(&file, &result).await;
@@ -171,13 +171,13 @@ impl Task for Arc<ScanTask> {
             .collect()
             .await;
 
-        self.done().await;
+        self.done();
     }
 
-    fn progress(&self) -> f32 {
+    fn progress(&self) -> f64 {
         match self.num_files.load(Ordering::Relaxed) {
             0 => 0.0,
-            num_files => self.num_done.load(Ordering::Relaxed) as f32 / num_files as f32,
+            num_files => self.num_done.load(Ordering::Relaxed) as f64 / num_files as f64,
         }
     }
 
@@ -194,7 +194,7 @@ impl Task for Arc<ScanTask> {
             .read()
             .unwrap()
             .as_ref()
-            .map(|f| f.filename())?
+            .map(FileData::filename)?
     }
 
     fn state(&self) -> &RwLock<TaskState> { &self.state }

@@ -47,7 +47,7 @@ where
                 self.list_state.borrow_mut().select_next();
             }
             (KeyModifiers::NONE, KeyCode::Char('k') | KeyCode::Up) => {
-                self.list_state.borrow_mut().select_previous()
+                self.list_state.borrow_mut().select_previous();
             }
             (KeyModifiers::NONE, KeyCode::Enter) => {
                 let Some(i) = self.list_state.borrow().selected() else {

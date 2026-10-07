@@ -45,7 +45,7 @@ impl App {
         let core = Arc::new(Core::make().await);
         let manager = Manager::default();
 
-        let mut app = App {
+        let mut app = Self {
             core,
             manager,
             term,
@@ -79,7 +79,7 @@ impl App {
         while !app.should_exit {
             if let Some(t) = timeout.take() {
                 select! {
-                    _ = sleep(t) => {
+                    () = sleep(t) => {
                         app.render()?;
                         last_render = Instant::now();
                     }
@@ -104,18 +104,22 @@ impl App {
         self.term.draw(|frame| {
             let mut area = frame.area();
 
-            let tasks = self.core.tasks.read().unwrap();
-            tasks.render(area, frame.buffer_mut());
+            let num_active = {
+                let tasks = self.core.tasks.read().unwrap();
+                tasks.render(area, frame.buffer_mut());
+                tasks.active_len()
+            };
 
-            let active_tasks = tasks.active_len();
-            if active_tasks > 0 {
-                area = area.resize(Size::new(area.width, area.height - 3 * active_tasks as u16));
+            if num_active > 0 {
+                area = area.resize(Size::new(area.width, area.height - 3 * num_active as u16));
             }
 
             self.manager.menu().render_ref(area, frame.buffer_mut());
 
-            let notify = self.core.notify.read().unwrap();
-            notify.render(area, frame.buffer_mut());
+            {
+                let notify = self.core.notify.read().unwrap();
+                notify.render(area, frame.buffer_mut());
+            }
 
             if self.showing_help {
                 KeymapHelp::new(self.manager.menu().keymaps())
@@ -146,7 +150,5 @@ impl App {
         self.should_exit = true;
     }
 
-    pub fn quit(&mut self) {
-        self.should_exit = true;
-    }
+    pub const fn quit(&mut self) { self.should_exit = true; }
 }

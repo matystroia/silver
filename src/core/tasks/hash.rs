@@ -30,9 +30,9 @@ impl HashTask {
     pub fn new(core: Arc<Core>) -> Arc<Self> {
         Arc::new(Self {
             core,
-            num_files: Default::default(),
-            num_done: Default::default(),
-            last_file: Default::default(),
+            num_files: AtomicU64::default(),
+            num_done: AtomicU64::default(),
+            last_file: RwLock::default(),
             state: RwLock::new(TaskState::default()),
         })
     }
@@ -56,7 +56,7 @@ impl HashTask {
                     .into_iter()
                     .filter_map(Result::ok)
                     .filter(|e| e.file_type().is_file())
-                    .map(|e| e.into_path())
+                    .map(walkdir::DirEntry::into_path)
                     .filter(|p| !cur_paths.contains(p) && util::is_video(p) && !util::is_sample(p))
             })
             .collect();
@@ -101,10 +101,10 @@ impl Task for Arc<HashTask> {
         Event::Render.emit();
     }
 
-    fn progress(&self) -> f32 {
+    fn progress(&self) -> f64 {
         match self.num_files.load(Ordering::Relaxed) {
             0 => 0.0,
-            num_files => self.num_done.load(Ordering::Relaxed) as f32 / num_files as f32,
+            num_files => self.num_done.load(Ordering::Relaxed) as f64 / num_files as f64,
         }
     }
 
@@ -124,7 +124,5 @@ impl Task for Arc<HashTask> {
             .map(|f| f.to_string_lossy().into())
     }
 
-    fn state(&self) -> &RwLock<TaskState> {
-        &self.state
-    }
+    fn state(&self) -> &RwLock<TaskState> { &self.state }
 }

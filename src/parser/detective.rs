@@ -27,11 +27,11 @@ enum Hit {
 impl Hit {
     async fn resolve(self, tmdb: &tmdb::TMDBClient) -> Result<Feature> {
         match self {
-            Hit::Movie(id) => {
+            Self::Movie(id) => {
                 let movie = tmdb.movie_details(id).await?;
                 Ok(Feature::Movie(Arc::new(movie)))
             }
-            Hit::Episode(id, season, episode) => {
+            Self::Episode(id, season, episode) => {
                 let episode = tmdb.episode_details(id, season, episode).await?;
                 Ok(Feature::Episode(Arc::new(episode)))
             }
@@ -129,7 +129,7 @@ impl Detective {
             Filename::Episode(_) => boxed(tmdb.search_series(&query).await?.into_iter()),
         };
 
-        self.match_tmdb(filename, &results).await
+        Ok(Self::match_tmdb(filename, &results))
     }
 
     async fn match_local(&self, filename: &Filename) -> Result<Option<Hit>> {
@@ -151,14 +151,10 @@ impl Detective {
                     .map(tmdb::SeriesSearchResult::from),
             ),
         };
-        self.match_tmdb(filename, &results).await
+        Ok(Self::match_tmdb(filename, &results))
     }
 
-    async fn match_tmdb(
-        &self,
-        filename: &Filename,
-        results: &[Box<dyn TMDBResult>],
-    ) -> Result<Option<Hit>> {
+    fn match_tmdb(filename: &Filename, results: &[Box<dyn TMDBResult>]) -> Option<Hit> {
         let hits = results
             .iter()
             .filter(|res| res.vote_count() >= TMDB_MIN_VOTE_COUNT)
@@ -166,8 +162,8 @@ impl Detective {
             .collect_vec();
 
         match hits.as_slice() {
-            [] => Ok(None),
-            [(_, hit)] => Ok(Some(*hit)),
+            [] => None,
+            [(_, hit)] => Some(*hit),
             too_many => {
                 // Max by string similarity
                 let max_matches = too_many.iter().max_float_set_by_key(|(res, _)| {
@@ -175,7 +171,7 @@ impl Detective {
                         .max(util::fuzzy_match(res.original_name(), filename.name()))
                 });
                 if let [(_, hit)] = max_matches[..] {
-                    return Ok(Some(*hit));
+                    return Some(*hit);
                 }
 
                 // Prefer original title
@@ -183,12 +179,12 @@ impl Detective {
                     util::fuzzy_match(res.original_name(), filename.name())
                 });
                 if let [(_, hit)] = max_matches[..] {
-                    return Ok(Some(*hit));
+                    return Some(*hit);
                 }
 
                 Logger::debug(format!("Too many matches for {filename:?}"));
 
-                Ok(None)
+                None
             }
         }
     }
@@ -301,14 +297,10 @@ static SUBTITLE_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(.+?): .+$"
 static PAREN_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(.+?) \(.+\)$").unwrap());
 
 fn short_title(str: &str) -> String {
-    if let Some(caps) = [&SUBTITLE_RE, &PAREN_RE]
+    [&SUBTITLE_RE, &PAREN_RE]
         .iter()
         .find_map(|re| re.captures(str))
-    {
-        caps[1].to_string()
-    } else {
-        str.to_string()
-    }
+        .map_or_else(|| str.to_string(), |caps| caps[1].to_string())
 }
 
 impl ost::SubtitleResult {
@@ -345,7 +337,7 @@ mod tests {
                 id: TMDBId(1429),
                 original_language: "ja".into(),
                 original_name: "進撃の巨人".into(),
-                overview: "".into(),
+                overview: String::new(),
                 name: "Attack on Titan".into(),
                 vote_count: 7494,
             }
@@ -365,7 +357,7 @@ mod tests {
                 id: TMDBId(4539),
                 original_language: "en".into(),
                 original_title: "Hearts of Darkness: A Filmmaker's Apocalypse".into(),
-                overview: "".into(),
+                overview: String::new(),
                 release_date: chrono::NaiveDate::parse_from_str("1991-11-27", "%Y-%m-%d").unwrap(),
                 title: "Hearts of Darkness: A Filmmaker's Apocalypse".into(),
                 vote_count: 419,
@@ -375,7 +367,7 @@ mod tests {
                 year: 1991
             })),
             Some(Hit::Movie(TMDBId(4539)))
-        )
+        );
     }
 
     #[test]
@@ -385,7 +377,7 @@ mod tests {
                 id: TMDBId(33691),
                 original_language: "en".into(),
                 original_title: "Stereo (Tile 3B of a CAEE Educational Mosaic)".into(),
-                overview: "".into(),
+                overview: String::new(),
                 release_date: chrono::NaiveDate::parse_from_str("1969-06-23", "%Y-%m-%d").unwrap(),
                 title: "Stereo (Tile 3B of a CAEE Educational Mosaic)".into(),
                 vote_count: 92,
@@ -395,6 +387,6 @@ mod tests {
                 year: 1969
             })),
             Some(Hit::Movie(TMDBId(33691)))
-        )
+        );
     }
 }

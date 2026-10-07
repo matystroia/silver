@@ -57,7 +57,7 @@ impl<T> Series<T>
 where
     T: Deref<Target = Episode> + Clone,
 {
-    pub fn seasons(&self) -> &[Season<T>] { self.seasons.as_slice() }
+    pub const fn seasons(&self) -> &[Season<T>] { self.seasons.as_slice() }
 
     pub fn regular_seasons(&self) -> Vec<Season<T>> {
         self.seasons
@@ -118,7 +118,7 @@ pub struct LocalEpisode {
 }
 
 impl Deref for Episode {
-    type Target = Episode;
+    type Target = Self;
     fn deref(&self) -> &Self::Target { self }
 }
 

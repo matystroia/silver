@@ -25,18 +25,17 @@ impl Signals {
         Ok(Self { tx })
     }
 
-    pub fn stop(&mut self, cb: Option<oneshot::Sender<()>>) -> Result<()> {
+    pub fn stop(&self, cb: Option<oneshot::Sender<()>>) -> Result<()> {
         Ok(self.tx.send((false, cb))?)
     }
 
-    pub fn resume(&mut self, cb: Option<oneshot::Sender<()>>) -> Result<()> {
+    pub fn resume(&self, cb: Option<oneshot::Sender<()>>) -> Result<()> {
         Ok(self.tx.send((true, cb))?)
     }
 
     fn handle_sys(n: libc::c_int) -> bool {
-        use libc::{SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGTSTP};
+        use libc::{SIGHUP, SIGQUIT, SIGTERM, SIGTSTP};
         match n {
-            SIGINT => {}
             SIGQUIT | SIGHUP | SIGTERM => {
                 Event::Terminate(n).emit();
             }
@@ -48,7 +47,7 @@ impl Signals {
         true
     }
 
-    fn handle_term(event: CrosstermEvent) {
+    fn handle_term(event: &CrosstermEvent) {
         match event {
             CrosstermEvent::Key(KeyEvent {
                 code: KeyCode::Char('z'),
@@ -61,7 +60,7 @@ impl Signals {
                     kind: KeyEventKind::Press,
                     ..
                 },
-            ) => Event::Key(key).emit(),
+            ) => Event::Key(*key).emit(),
             CrosstermEvent::Resize(..) => Event::Render.emit(),
             _ => {}
         }
@@ -84,7 +83,7 @@ impl Signals {
                             callback.take().map(|cb|cb.send(()));
                         },
                         Some(n) = sys.next() => if !Self::handle_sys(n) { return },
-                        Some(Ok(e)) = t.next() => Self::handle_term(e),
+                        Some(Ok(e)) = t.next() => Self::handle_term(&e),
                     }
                 } else {
                     select! {

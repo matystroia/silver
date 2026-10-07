@@ -82,10 +82,10 @@ impl Task for Arc<ImportListTask> {
         Event::Render.emit();
     }
 
-    fn progress(&self) -> f32 {
+    fn progress(&self) -> f64 {
         match self.num_movies.load(Ordering::Relaxed) {
             0 => 0.0,
-            num_movies => self.num_done.load(Ordering::Relaxed) as f32 / num_movies as f32,
+            num_movies => self.num_done.load(Ordering::Relaxed) as f64 / num_movies as f64,
         }
     }
 

@@ -5,7 +5,7 @@ use std::{
 };
 
 use image::DynamicImage;
-use schnellru::{Limiter, LruMap};
+use schnellru::{Limiter, LruMap, RandomState};
 
 use crate::{events::Event, traits::HeapSize, ui::common::Image};
 
@@ -29,9 +29,9 @@ where
     fn default() -> Self {
         let limiter = ByHeapSize::new(1024 * 1024 * 256);
         Self {
-            map: LruMap::with_hasher(limiter, Default::default()),
-            fetching: Default::default(),
-            missing: Default::default(),
+            map: LruMap::with_hasher(limiter, RandomState::default()),
+            fetching: HashSet::default(),
+            missing: HashSet::default(),
         }
     }
 }
@@ -42,7 +42,7 @@ where
 {
     pub fn new(get_image: impl Fn(&K) -> Option<DynamicImage> + Send + Sync + 'static) -> Self {
         Self {
-            state: Default::default(),
+            state: Arc::default(),
             get_image: Arc::new(get_image),
         }
     }
@@ -91,7 +91,7 @@ struct ByHeapSize {
 }
 
 impl ByHeapSize {
-    fn new(max_bytes: usize) -> Self {
+    const fn new(max_bytes: usize) -> Self {
         Self {
             bytes: 0,
             max_bytes,
@@ -107,9 +107,7 @@ where
     type LinkType = u32;
 
     #[inline]
-    fn is_over_the_limit(&self, _length: usize) -> bool {
-        self.bytes > self.max_bytes
-    }
+    fn is_over_the_limit(&self, _length: usize) -> bool { self.bytes > self.max_bytes }
 
     #[inline]
     fn on_insert(&mut self, _length: usize, key: K, value: Arc<V>) -> Option<(K, Arc<V>)> {
@@ -137,17 +135,11 @@ where
     }
 
     #[inline]
-    fn on_removed(&mut self, _key: &mut K, value: &mut Arc<V>) {
-        self.bytes -= value.byte_size();
-    }
+    fn on_removed(&mut self, _key: &mut K, value: &mut Arc<V>) { self.bytes -= value.byte_size(); }
 
     #[inline]
-    fn on_cleared(&mut self) {
-        self.bytes = 0;
-    }
+    fn on_cleared(&mut self) { self.bytes = 0; }
 
     #[inline]
-    fn on_grow(&mut self, _new_memory_usage: usize) -> bool {
-        true
-    }
+    fn on_grow(&mut self, _new_memory_usage: usize) -> bool { true }
 }

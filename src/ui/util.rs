@@ -43,9 +43,7 @@ pub fn detail_split(area: Rect, show_details: bool) -> [Rect; 2] {
 }
 
 /// Indicator cell for whether an item has any local paths on disk.
-pub fn presence_dot(has_paths: bool) -> &'static str {
-    if has_paths { "●" } else { " " }
-}
+pub const fn presence_dot(has_paths: bool) -> &'static str { if has_paths { "●" } else { " " } }
 
 pub fn menu_block(title: &str) -> Block<'_> {
     Block::bordered()

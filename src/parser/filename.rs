@@ -196,7 +196,7 @@ impl Filename {
             return None;
         }
 
-        Some(Filename::Movie(MovieDetails { title, year }))
+        Some(Self::Movie(MovieDetails { title, year }))
     }
 
     fn try_episode(words: &[String], path: &Path) -> Option<Self> {
@@ -237,12 +237,12 @@ impl Filename {
             } else if let [word] = right
                 && let Ok(right_num) = word.parse::<u16>()
             {
-                parts.name(left.join(" "));
+                parts.name(&left.join(" "));
                 parts.episode(right_num);
                 words.clear();
             }
         } else if let [left, middle, _right] = split.as_slice() {
-            parts.name(left.join(" "));
+            parts.name(&left.join(" "));
             let _ = std::mem::replace(words, middle.to_vec());
         }
     }
@@ -260,11 +260,11 @@ impl Filename {
                 parts.season(season);
                 parts.episode(episode);
                 if i > 0 {
-                    parts.name(words[..i].join(" "));
+                    parts.name(&words[..i].join(" "));
                 }
                 words.drain(..i);
                 return;
-            };
+            }
         }
     }
 
@@ -279,7 +279,7 @@ impl Filename {
                 parts.season(season);
                 parts.episode(episode);
                 if i > 0 {
-                    parts.name(words[..i].join(" "));
+                    parts.name(&words[..i].join(" "));
                 }
                 words.drain(..i + 4);
                 return;
@@ -297,7 +297,7 @@ impl Filename {
         {
             parts.episode(episode);
             if i > 0 {
-                parts.name(words[..i].join(" "));
+                parts.name(&words[..i].join(" "));
             }
             words.drain(..i);
         }
@@ -311,7 +311,7 @@ impl Filename {
             {
                 parts.episode(episode);
                 if i > 0 {
-                    parts.name(words[..i].join(" "));
+                    parts.name(&words[..i].join(" "));
                 }
                 words.drain(..i + 2);
                 return;
@@ -342,7 +342,7 @@ impl Filename {
         {
             parts.season(num / 100);
             parts.episode(num % 100);
-            parts.name(words[..i].join(" "));
+            parts.name(&words[..i].join(" "));
             words.drain(..i);
         }
     }
@@ -352,17 +352,19 @@ impl Filename {
             .iter()
             .enumerate()
             .filter_map(|(i, w)| {
-                w.parse().ok().map(|num| (i, num)).or(EP_NUMBER_V_RE
-                    .captures(w)
-                    .and_then(|caps| caps[1].parse().ok())
-                    .map(|num| (i, num)))
+                w.parse().ok().map(|num| (i, num)).or_else(|| {
+                    EP_NUMBER_V_RE
+                        .captures(w)
+                        .and_then(|caps| caps[1].parse().ok())
+                        .map(|num| (i, num))
+                })
             })
             .collect();
         if let [(i, num)] = *numbers.as_slice()
             && (1..=100).contains(&num)
         {
             parts.episode(num);
-            parts.name(words[..i].join(" "));
+            parts.name(&words[..i].join(" "));
             words.drain(..i);
         }
     }
@@ -390,14 +392,14 @@ impl Filename {
             parts.season(season);
             if let Some(cap) = caps.get(1) {
                 // Show Season 1 / ...
-                parts.name(cap.as_str().to_string());
+                parts.name(cap.as_str());
             } else if let Some(grandparent) = comps.iter().rev().nth(1) {
                 if let Some(caps) = DIR_SEASONS_RE.captures(grandparent) {
                     // Show Seasons 1-10 / Season 1 / ...
-                    parts.name(caps[1].to_string())
+                    parts.name(&caps[1]);
                 } else {
                     // Show / Season 1 / ...
-                    parts.name(grandparent.clone())
+                    parts.name(&grandparent.clone());
                 }
             }
         }
@@ -424,7 +426,7 @@ impl Filename {
     pub fn to_tmdb_query(&self) -> Vec<(&str, String)> {
         match self {
             Self::Movie(movie) => vec![
-                ("query", movie.title.to_string()),
+                ("query", movie.title.clone()),
                 ("year", movie.year.to_string()),
             ],
             Self::Episode(episode) => vec![("query", episode.series.clone())],
@@ -440,25 +442,25 @@ pub struct EpisodeParts {
 }
 
 impl EpisodeParts {
-    fn name(&mut self, name: String) {
+    fn name(&mut self, name: &str) {
         if self.name.is_none() {
             self.name = Some(name.trim_suffix(" -").into());
         }
     }
 
-    fn season(&mut self, season: u16) {
+    const fn season(&mut self, season: u16) {
         if self.season.is_none() {
             self.season = Some(season);
         }
     }
 
-    fn episode(&mut self, episode: u16) {
+    const fn episode(&mut self, episode: u16) {
         if self.episode.is_none() {
             self.episode = Some(episode);
         }
     }
 
-    fn is_complete(&self) -> bool {
+    const fn is_complete(&self) -> bool {
         self.name.is_some() && self.season.is_some() && self.episode.is_some()
     }
 
@@ -625,7 +627,7 @@ mod tests {
                 season: expected_season,
                 episode: expected_episode,
             }))
-        )
+        );
     }
 
     #[rstest]
@@ -655,6 +657,6 @@ mod tests {
                 season: expected_season,
                 episode: expected_episode
             }))
-        )
+        );
     }
 }

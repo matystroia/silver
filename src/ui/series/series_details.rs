@@ -16,7 +16,10 @@ pub(super) struct SeriesDetails {
 }
 
 impl SeriesDetails {
-    pub fn new(series: Arc<Series<LocalEpisode>>, poster_cache: Arc<ImageCache<TMDBId>>) -> Self {
+    pub const fn new(
+        series: Arc<Series<LocalEpisode>>,
+        poster_cache: Arc<ImageCache<TMDBId>>,
+    ) -> Self {
         Self {
             series,
             poster_cache,
@@ -39,8 +42,9 @@ impl WidgetRef for SeriesDetails {
         let overview = self.series.overview.clone().into();
 
         let font_size = PICKER.get().unwrap().font_size();
-        let poster_height =
-            ((area.width * font_size.width) as f32 * 1.5 / font_size.height as f32).ceil() as u16;
+        let poster_height = (f32::from(area.width * font_size.width) * 1.5
+            / f32::from(font_size.height))
+        .ceil() as u16;
 
         let [poster_area, details_area] =
             Layout::vertical([Constraint::Length(poster_height), Constraint::Fill(1)]).areas(area);

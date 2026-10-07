@@ -36,9 +36,9 @@ impl Data {
     pub async fn new() -> Result<Self> {
         Ok(Self {
             pool: Self::connect().await?,
-            directories_tx: watch::channel(Default::default()).0,
-            movies_tx: watch::channel(Default::default()).0,
-            series_tx: watch::channel(Default::default()).0,
+            directories_tx: watch::channel(Vec::new()).0,
+            movies_tx: watch::channel(Vec::new()).0,
+            series_tx: watch::channel(Vec::new()).0,
         })
     }
 }
@@ -62,9 +62,10 @@ impl Data {
             bail!("Invalid path: {path:?}")
         }
 
-        let path = match path.is_absolute() {
-            true => path,
-            false => path.absolute()?,
+        let path = if path.is_absolute() {
+            path
+        } else {
+            path.absolute()?
         };
 
         let result = sqlx::query!(
@@ -206,7 +207,7 @@ impl Data {
         .fetch_all(&self.pool)
         .await?
         {
-            paths.entry(row.episode_id).or_default().push(PathBuf::from(&row.path))
+            paths.entry(row.episode_id).or_default().push(PathBuf::from(&row.path));
         }
 
         let mut episodes_by_season: HashMap<(TMDBId, i64), Vec<LocalEpisode>> = HashMap::new();
@@ -299,7 +300,7 @@ impl Data {
             paths
                 .entry(row.episode_id)
                 .or_default()
-                .push(PathBuf::from(&row.path))
+                .push(PathBuf::from(&row.path));
         }
 
         let mut episodes_by_season: HashMap<(TMDBId, i64), Vec<LocalEpisode>> = HashMap::new();
@@ -473,7 +474,7 @@ impl Data {
         .fetch_all(&self.pool)
         .await?
         {
-            paths.entry(row.movie_id).or_default().push(PathBuf::from(&row.path))
+            paths.entry(row.movie_id).or_default().push(PathBuf::from(&row.path));
         }
 
         let movies = sqlx::query!(r#"SELECT * FROM movies"#)
@@ -577,7 +578,7 @@ impl Data {
 }
 
 impl Data {
-    pub fn get_poster(id: &TMDBId) -> Option<DynamicImage> {
+    pub fn get_poster(id: TMDBId) -> Option<DynamicImage> {
         let poster_path = Config::data_dir().join("posters").join(format!("{id}.jpg"));
         image::ImageReader::open(poster_path).ok()?.decode().ok()
     }
@@ -586,7 +587,7 @@ impl Data {
         if !std::fs::exists(path).unwrap_or(false) {
             return None;
         }
-        extract_frame(path, 0.5).ok().map(|img| img.into())
+        extract_frame(path, 0.5).ok().map(Into::into)
     }
 }
 

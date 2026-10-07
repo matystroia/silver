@@ -35,25 +35,19 @@ impl Message {
         }
     }
 
-    pub fn info(msg: impl Into<Line<'static>>) -> Self {
-        Self::new(MessageType::Info, msg)
-    }
+    pub fn info(msg: impl Into<Line<'static>>) -> Self { Self::new(MessageType::Info, msg) }
 
-    pub fn error(msg: impl Into<Line<'static>>) -> Self {
-        Self::new(MessageType::Error, msg)
-    }
+    pub fn error(msg: impl Into<Line<'static>>) -> Self { Self::new(MessageType::Error, msg) }
 }
 
 impl Notification for Message {
-    fn should_show(&self) -> bool {
-        self.instant.elapsed().as_secs() < MESSAGE_DURATION_SEC
-    }
+    fn should_show(&self) -> bool { self.instant.elapsed().as_secs() < MESSAGE_DURATION_SEC }
 
     fn render(&self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer) {
         let text = self.message.clone();
         let text = match self.r#type {
             MessageType::Error => text.red(),
-            _ => text,
+            MessageType::Info => text,
         };
 
         Paragraph::new(text)

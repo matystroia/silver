@@ -6,16 +6,18 @@ use ratatui::{
 
 use crate::{core::data::Directory, util};
 
+#[derive(Clone)]
 pub struct DirectoryMetadata {
     file_name: String,
     base_path: String,
     exists: bool,
-    size: Option<u64>,
+    size: u64,
 }
 
-pub struct DirectoryWithMetadata<'a> {
-    pub directory: &'a Directory,
-    pub metadata: Option<&'a DirectoryMetadata>,
+#[derive(Clone)]
+pub struct DirectoryWithMetadata {
+    pub directory: Directory,
+    pub metadata: Option<DirectoryMetadata>,
 }
 
 pub fn get_metadata(dir: &Directory) -> DirectoryMetadata {
@@ -24,30 +26,30 @@ pub fn get_metadata(dir: &Directory) -> DirectoryMetadata {
         file_name: dir.0.file_name().unwrap().to_string_lossy().into_owned(),
         base_path: dir.0.parent().unwrap().to_string_lossy().into_owned(),
         exists,
-        size: util::dir_size(&dir.0).ok(),
+        size: util::dir_size(&dir.0),
     }
 }
 
-impl<'a> DirectoryWithMetadata<'a> {
-    pub fn to_row(&self) -> Row<'a> {
+impl DirectoryWithMetadata {
+    pub fn to_row(&self) -> Row<'_> {
         let mut left = Line::from(vec![
             self.metadata
-                .map(|m| m.file_name.as_str())
-                .unwrap_or(" ")
+                .as_ref()
+                .map_or(" ", |m| m.file_name.as_str())
                 .into(),
             " ".into(),
             self.metadata
-                .map(|m| m.base_path.as_str())
-                .unwrap_or(" ")
+                .as_ref()
+                .map_or(" ", |m| m.base_path.as_str())
                 .into(),
         ]);
         let right = self
             .metadata
-            .and_then(|m| m.size)
-            .map(util::human_size)
-            .unwrap_or("?".to_string());
+            .as_ref()
+            .map(|m| m.size)
+            .map_or_else(|| "?".to_string(), util::human_size);
 
-        if !self.metadata.map(|m| m.exists).unwrap_or(false) {
+        if !self.metadata.as_ref().is_some_and(|m| m.exists) {
             left = left.red();
         }
 

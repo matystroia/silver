@@ -46,8 +46,9 @@ impl WidgetRef for MovieDetails {
         .yellow();
 
         let font_size = PICKER.get().unwrap().font_size();
-        let poster_height =
-            ((area.width * font_size.width) as f32 * 1.5 / font_size.height as f32).ceil() as u16;
+        let poster_height = (f32::from(area.width * font_size.width) * 1.5
+            / f32::from(font_size.height))
+        .ceil() as u16;
 
         let [poster_area, details_area] =
             Layout::vertical([Constraint::Length(poster_height), Constraint::Fill(1)]).areas(area);

@@ -74,7 +74,7 @@ impl Tasks {
         let _ = self.jobs.send(Job::One(task));
     }
 
-    pub fn push_task_sequence(&mut self, seq: TaskSequence) {
+    pub fn push_task_sequence(&mut self, seq: &TaskSequence) {
         let tasks = seq.tasks();
         self.tasks.extend(tasks.iter().cloned());
         let _ = self.jobs.send(Job::Sequence(tasks));

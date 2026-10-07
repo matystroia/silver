@@ -24,9 +24,10 @@ where
 
     fn complete(&mut self, reverse: bool) {
         if let Some(ref mut complete) = self.complete {
-            self.modal.value = match reverse {
-                false => complete.increment(),
-                true => complete.decrement(),
+            self.modal.value = if reverse {
+                complete.decrement()
+            } else {
+                complete.increment()
             }
             .to_string_lossy()
             .into_owned();
@@ -63,7 +64,7 @@ where
                 self.modal.value = complete.path().to_string_lossy().into_owned();
                 self.complete = Some(complete);
             }
-        };
+        }
     }
 
     fn delete_word_back(&mut self) {
@@ -76,8 +77,7 @@ where
             .char_indices()
             .rev()
             .find(|&(_, ch)| ch == std::path::MAIN_SEPARATOR)
-            .map(|(i, ch)| i + ch.len_utf8())
-            .unwrap_or(0);
+            .map_or(0, |(i, ch)| i + ch.len_utf8());
         self.modal.value.truncate(cut);
     }
 }
@@ -89,11 +89,7 @@ where
 {
     async fn on_key_event(&mut self, key: crossterm::event::KeyEvent) {
         match (key.modifiers, key.code) {
-            (KeyModifiers::NONE | KeyModifiers::SHIFT, KeyCode::Char(_)) => {
-                self.modal.on_key_event(key).await;
-                self.complete = None;
-            }
-            (KeyModifiers::NONE, KeyCode::Backspace) => {
+            (KeyModifiers::NONE | KeyModifiers::SHIFT, KeyCode::Char(_) | KeyCode::Backspace) => {
                 self.modal.on_key_event(key).await;
                 self.complete = None;
             }
@@ -122,7 +118,7 @@ fn subdirs(path: &Path) -> Vec<PathBuf> {
         return vec![];
     };
     children
-        .filter_map(|e| e.ok())
+        .filter_map(Result::ok)
         .filter(|e| e.file_type().is_ok_and(|t| t.is_dir()))
         .map(|e| e.path())
         .sorted()
@@ -135,7 +131,7 @@ struct Complete {
 }
 
 impl Complete {
-    fn new(options: Vec<PathBuf>) -> Self { Self { index: 0, options } }
+    const fn new(options: Vec<PathBuf>) -> Self { Self { index: 0, options } }
 
     fn increment(&mut self) -> PathBuf {
         self.index = (self.index + 1) % self.options.len();

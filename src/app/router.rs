@@ -7,16 +7,14 @@ pub struct Router<'a> {
 }
 
 impl<'a> Router<'a> {
-    pub fn new(app: &'a mut App) -> Self {
-        Self { app }
-    }
+    pub const fn new(app: &'a mut App) -> Self { Self { app } }
 
     pub async fn route(&mut self, key: KeyEvent) {
         match (key.modifiers, key.code) {
             (_, KeyCode::Char('q')) | (KeyModifiers::CONTROL, KeyCode::Char('c'))
                 if !self.app.manager.has_modal() =>
             {
-                Event::Quit.emit()
+                Event::Quit.emit();
             }
             (_, KeyCode::Char('?')) if !self.app.manager.has_modal() => {
                 self.app.showing_help = true;

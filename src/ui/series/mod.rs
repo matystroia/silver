@@ -33,12 +33,12 @@ pub mod single_series;
 impl Listable for Series<LocalEpisode> {
     fn title(&self) -> &str { &self.name }
 
-    fn year(&self) -> Option<i32> { Series::year(self) }
+    fn year(&self) -> Option<i32> { Self::year(self) }
 
     fn row(&self) -> Row<'static> {
         Row::new([Line::from(vec![
-            Series::year(self)
-                .map_or("?".into(), |y| y.to_string())
+            Self::year(self)
+                .map_or_else(|| "?".into(), |y| y.to_string())
                 .yellow(),
             " ".into(),
             self.name.clone().into(),
@@ -60,7 +60,7 @@ impl SeriesList {
     pub async fn new(core: Arc<Core>) -> Self {
         let series = core.data().series().await.unwrap();
 
-        let poster_cache = Arc::new(ImageCache::new(Data::get_poster));
+        let poster_cache = Arc::new(ImageCache::new(|x| Data::get_poster(*x)));
 
         let view = View::new(series);
 
@@ -101,14 +101,14 @@ impl SeriesList {
         let view = Arc::clone(&self.view);
         self.modal = Some(Box::new(InputModal::new(filter, async move |filter| {
             view.write().unwrap().set_filter(filter);
-        })))
+        })));
     }
 
     fn cycle_sort(&self) { self.view.write().unwrap().cycle_sort(); }
 
     fn update_details(&mut self) {
         if let Some(series) = self.selected_series() {
-            self.details = Some(SeriesDetails::new(series, Arc::clone(&self.poster_cache)))
+            self.details = Some(SeriesDetails::new(series, Arc::clone(&self.poster_cache)));
         }
     }
 }
@@ -132,7 +132,7 @@ impl Menu for SeriesList {
             KeyCode::Char('/') => self.filter_series(),
             KeyCode::Enter => {
                 if let Some(series) = self.selected_series() {
-                    Event::Navigate(Navigate::Series(series.id)).emit()
+                    Event::Navigate(Navigate::Series(series.id)).emit();
                 }
             }
             KeyCode::Esc => Event::Navigate(Navigate::Back).emit(),

@@ -86,7 +86,14 @@ impl DirectoriesMenu {
             return;
         };
 
-        if let Some(path) = self.directories.read().unwrap().get(i).map(|d| d.0.clone()) {
+        let opt = self
+            .directories
+            .read()
+            .unwrap()
+            .get(i)
+            .map(|dir| dir.0.clone());
+
+        if let Some(path) = opt {
             let core = Arc::clone(&self.core);
             self.modal = Some(Box::new(Confirm::new(
                 "Remove directory?",
@@ -120,10 +127,10 @@ impl Menu for DirectoriesMenu {
         if !Self::dispatch_modal(key, &mut self.modal).await {
             match (key.modifiers, key.code) {
                 (_, KeyCode::Char('j') | KeyCode::Down) => {
-                    self.table_state.borrow_mut().select_next()
+                    self.table_state.borrow_mut().select_next();
                 }
                 (_, KeyCode::Char('k') | KeyCode::Up) => {
-                    self.table_state.borrow_mut().select_previous()
+                    self.table_state.borrow_mut().select_previous();
                 }
                 (_, KeyCode::Char('a')) => self.add_dir(),
                 (_, KeyCode::Char('d')) => self.rm_dir(),
@@ -154,13 +161,15 @@ impl Menu for DirectoriesMenu {
 
 impl WidgetRef for DirectoriesMenu {
     fn render_ref(&self, area: Rect, buf: &mut Buffer) {
-        let dirs_guard = self.directories.read().unwrap();
         let metadata_guard = self.metadata.read().unwrap();
-        let dirs_with_metadata: Vec<_> = dirs_guard
+        let dirs_with_metadata: Vec<_> = self
+            .directories
+            .read()
+            .unwrap()
             .iter()
             .map(|dir| DirectoryWithMetadata {
-                directory: dir,
-                metadata: metadata_guard.get(dir),
+                directory: dir.clone(),
+                metadata: metadata_guard.get(dir).cloned(),
             })
             .collect();
 

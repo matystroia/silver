@@ -21,7 +21,7 @@ pub struct EpisodesTable<'a> {
 }
 
 impl<'a> EpisodesTable<'a> {
-    pub fn new(state: &'a RefCell<MenuState>, season: &'a Season<LocalEpisode>) -> Self {
+    pub const fn new(state: &'a RefCell<MenuState>, season: &'a Season<LocalEpisode>) -> Self {
         Self { state, season }
     }
 
@@ -32,7 +32,7 @@ impl<'a> EpisodesTable<'a> {
             .map(|ep| {
                 Row::new(vec![
                     format!("{:02}", ep.episode_number).yellow(),
-                    ep.title.to_string().into(),
+                    ep.title.clone().into(),
                     presence_dot(!ep.paths.is_empty()).into(),
                 ])
             })

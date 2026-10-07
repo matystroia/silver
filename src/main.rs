@@ -1,4 +1,4 @@
-#![feature(path_absolute_method, trim_prefix_suffix, path_trailing_sep)]
+#![feature(path_absolute_method, path_trailing_sep)]
 
 use std::{
     env,
@@ -67,7 +67,7 @@ async fn cli(args: Vec<String>) -> color_eyre::Result<()> {
         ["clear"] => {
             core.data().clear_features().await?;
         }
-        ["list", username, list] => {
+        ["import", username, list] => {
             ImportListTask::new(Arc::clone(&core), username.to_string(), list.to_string())
                 .run()
                 .await;

@@ -10,7 +10,7 @@ use ratatui::{
 pub trait Task: Send + Sync {
     async fn run(&self);
 
-    fn progress(&self) -> f32;
+    fn progress(&self) -> f64;
 
     fn summary(&self) -> String;
 
@@ -29,7 +29,7 @@ pub trait Task: Send + Sync {
         Gauge::default()
             .block(block)
             .label(self.summary())
-            .percent((self.progress() * 100f32).round() as u16)
+            .percent((self.progress() * 100.).round() as u16)
             .render(area, buf);
     }
 }
@@ -54,7 +54,5 @@ impl TaskSequence {
         self
     }
 
-    pub fn tasks(&self) -> Vec<Arc<dyn Task>> {
-        self.tasks.iter().map(Arc::clone).collect()
-    }
+    pub fn tasks(&self) -> Vec<Arc<dyn Task>> { self.tasks.iter().map(Arc::clone).collect() }
 }

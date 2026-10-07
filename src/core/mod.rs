@@ -50,19 +50,13 @@ impl Core {
         }
     }
 
-    pub fn data(&self) -> &Data {
-        &self.data
-    }
+    pub const fn data(&self) -> &Data { &self.data }
 
     #[allow(dead_code)]
-    pub fn config(&self) -> &Config {
-        &self.config
-    }
+    pub const fn config(&self) -> &Config { &self.config }
 
     #[allow(dead_code)]
-    pub fn events(&self) -> &Events {
-        &self.events
-    }
+    pub const fn events(&self) -> &Events { &self.events }
 }
 
 #[async_trait::async_trait]
@@ -74,14 +68,14 @@ pub trait CoreTasks {
 #[async_trait::async_trait]
 impl CoreTasks for Arc<Core> {
     fn hash_files(&self) {
-        let task = HashTask::new(Arc::clone(self));
+        let task = HashTask::new(Self::clone(self));
         self.tasks.write().unwrap().push_task(Arc::new(task));
     }
 
     fn scan_directories(&self) {
         let seq = TaskSequence::default()
-            .task(HashTask::new(Arc::clone(self)))
-            .task(ScanTask::new(Arc::clone(self)));
-        self.tasks.write().unwrap().push_task_sequence(seq);
+            .task(HashTask::new(Self::clone(self)))
+            .task(ScanTask::new(Self::clone(self)));
+        self.tasks.write().unwrap().push_task_sequence(&seq);
     }
 }

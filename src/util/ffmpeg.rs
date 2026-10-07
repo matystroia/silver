@@ -26,7 +26,7 @@ pub fn extract_frame(path: &Path, pos: f64) -> Result<RgbImage, ffmpeg::Error> {
 
     ictx.seek(timestamp, ..)?;
 
-    let mut decoded = ffmpeg::util::frame::video::Video::empty();
+    let mut frame = ffmpeg::util::frame::video::Video::empty();
 
     for (stream, packet) in ictx.packets() {
         if stream.index() != stream_index {
@@ -34,16 +34,17 @@ pub fn extract_frame(path: &Path, pos: f64) -> Result<RgbImage, ffmpeg::Error> {
         }
 
         decoder.send_packet(&packet)?;
-        if decoder.receive_frame(&mut decoded).is_err() {
+        if decoder.receive_frame(&mut frame).is_err() {
             continue;
         }
 
-        let (src_width, src_height) = (decoded.width(), decoded.height());
+        let (src_width, src_height) = (frame.width(), frame.height());
         let dst_width = 480;
-        let dst_height = (src_height as f64 / src_width as f64 * dst_width as f64) as u32;
+        let dst_height =
+            (f64::from(src_height) / f64::from(src_width) * f64::from(dst_width)) as u32;
 
         let mut scaler = ffmpeg::software::scaling::context::Context::get(
-            decoded.format(),
+            frame.format(),
             src_width,
             src_height,
             ffmpeg::format::Pixel::RGB24,
@@ -53,7 +54,7 @@ pub fn extract_frame(path: &Path, pos: f64) -> Result<RgbImage, ffmpeg::Error> {
         )?;
 
         let mut rgb_frame = ffmpeg::util::frame::video::Video::empty();
-        scaler.run(&decoded, &mut rgb_frame)?;
+        scaler.run(&frame, &mut rgb_frame)?;
 
         // Extract RGB data
         let width = rgb_frame.width();

@@ -6,10 +6,10 @@ use std::{
 
 use color_eyre::eyre::{Result, bail};
 
-const HASH_BLK_SIZE: u64 = 65536;
+const HASH_BLK_SIZE: usize = 65536;
 
 pub fn file_hash(file: File) -> Result<String> {
-    let fsize = file.metadata()?.len();
+    let fsize = file.metadata()?.len() as usize;
 
     if fsize < HASH_BLK_SIZE {
         bail!("file too small for opensubtitles moviehash: {fsize} bytes");
@@ -17,17 +17,17 @@ pub fn file_hash(file: File) -> Result<String> {
 
     let mut ret = fsize;
     let mut buf = [0; 8];
-    let mut reader = BufReader::with_capacity(HASH_BLK_SIZE as usize, file);
+    let mut reader = BufReader::with_capacity(HASH_BLK_SIZE, file);
 
     for _ in 0..HASH_BLK_SIZE / 8 {
         reader.read_exact(&mut buf)?;
-        ret = ret.wrapping_add(u64::from_le_bytes(buf));
+        ret = ret.wrapping_add(usize::from_le_bytes(buf));
     }
 
-    reader.seek(SeekFrom::Start(fsize - HASH_BLK_SIZE))?;
+    reader.seek(SeekFrom::Start((fsize - HASH_BLK_SIZE) as u64))?;
     for _ in 0..HASH_BLK_SIZE / 8 {
         reader.read_exact(&mut buf)?;
-        ret = ret.wrapping_add(u64::from_le_bytes(buf));
+        ret = ret.wrapping_add(usize::from_le_bytes(buf));
     }
 
     Ok(format!("{ret:016x}"))

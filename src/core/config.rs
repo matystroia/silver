@@ -38,17 +38,15 @@ impl Config {
         let config_str = fs::read_to_string(config_path)?;
         let config_table: Table = config_str.parse()?;
 
-        let mut config = Config::default();
+        let mut config = Self::default();
         if let Some(api_table) = config_table["api"].as_table() {
             config.api.ost_api_key = api_table["ost_api_key"].as_str().map(str::to_string);
             config.api.tmdb_access_token =
-                api_table["tmdb_access_token"].as_str().map(str::to_string)
+                api_table["tmdb_access_token"].as_str().map(str::to_string);
         }
 
         Ok(config)
     }
 
-    pub fn data_dir() -> &'static Path {
-        PROJECT_DIRS.data_dir()
-    }
+    pub fn data_dir() -> &'static Path { PROJECT_DIRS.data_dir() }
 }

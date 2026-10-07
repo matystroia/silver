@@ -1,9 +1,7 @@
-use chrono::NaiveDate;
-use color_eyre::Result;
-use serde::{Deserialize, Deserializer};
-
 pub mod date_format {
-    use super::*;
+    use chrono::NaiveDate;
+    use serde::{Deserialize, Deserializer};
+
     const FORMAT: &str = "%Y-%m-%d";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
@@ -85,7 +83,7 @@ where
     T: Into<String>,
 {
     fn from(value: T) -> Self {
-        LangString {
+        Self {
             str: value.into(),
             lang: None,
         }
