@@ -27,7 +27,7 @@ jobs:
             /opt/homebrew/lib/pkgconfig:/opt/homebrew/opt/ffmpeg/lib/pkgconfig
 
       - name: Upload binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: silver-aarch64-apple-darwin
           path: target/release/silver
