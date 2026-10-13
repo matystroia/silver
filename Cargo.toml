@@ -34,7 +34,7 @@ regex = "1.12.2"
 async-trait = "0.1.89"
 image = "0.25.8"
 ratatui-image = { version = "11.0", features = ["tokio"] }
-ffmpeg-next = "8.1.0"
+ffmpeg-next = "9.0.0"
 rayon = "1.12.0"
 sqlx = { version = "0.9.0", features = [
     "runtime-tokio",
