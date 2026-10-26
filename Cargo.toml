@@ -51,7 +51,7 @@ strsim = "0.11.1"
 kakasi = "0.1.0"
 open = "5.3.6"
 tl = "0.7.8"
-html-escape = "0.2.13"
+html-escape = "0.3.0"
 
 [lints.clippy]
 all = { level = "warn", priority = -1 }
