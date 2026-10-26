@@ -64,4 +64,4 @@ cast_precision_loss = "allow"
 future_not_send = "allow"
 
 [dev-dependencies]
-rstest = "0.26.1"
+rstest = "0.28.0"
